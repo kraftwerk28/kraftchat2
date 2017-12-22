@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Kraft chat</title>
+  <style>
+  </style>
+</head>
+
+
+
+<body>
+  <div id="chat" style="text-align: center">
+    <textarea class="inp" id="username" cols="100" rows="1" placeholder="your username:"></textarea>
+    <br>
+
+    <textarea class="inp" id="messages" cols="100" rows="10" readonly></textarea>
+    <br>
+
+    <textarea class="inp" id="enter-message" cols="100" rows="3" placeholder="enter message..."></textarea>
+    <br>
+    <button id="send">Send</button>
+    <button id="clear">Clear</button>
+    <!-- <input id="ip" type="text"> -->
+    <!-- <button id="reconnect">Reconnect</button> -->
+    <div id="status"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script>
+    // 'use strict';
+
+    socket = io();
+
+    const getEl = e => document.getElementById(e);
+
+    let username = '';
+    let message = '';
+    let istyping = false;
+
+    const usernameField = getEl('username');
+    const messageIn = getEl('enter-message');
+    const messageOut = getEl('messages');
+    const status = getEl('status');
+    const sendBt = getEl('send');
+    const clearBt = getEl('clear');
+    status.textContent = 'lool';
+
+    clearBt.addEventListener('click', () => {
+      socket.emit('clearChat', {});
+    });
+
+    sendBt.addEventListener('click', () => {
+      if (messageIn.value === '' || username === '')
+        status.textContent = 'enter a username or/and message, motherfucker';
+      else {
+        socket.emit('newMessage', { message: messageIn.value, username: username });
+        messageIn.value = '';
+        console.log(messageIn.value);
+      }
+    });
+
+    usernameField.addEventListener('input', () => {
+      username = usernameField.value;
+    });
+
+    messageIn.addEventListener('input', () => {
+      socket.emit('typingStart', { username: username });
+      console.log('typing');
+    });
+    messageIn.addEventListener('keydown', (e) => {
+      console.log(messageIn.value);
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        if (messageIn.value === '' || username === '')
+          status.textContent = 'enter a username or/and message, motherfucker';
+        else {
+          socket.emit('newMessage', { message: messageIn.value, username: username });
+          messageIn.value = '';
+          console.log(messageIn.value);
+        }
+      }
+    });
+
+
+
+    socket.on('typingStart', (data) => {
+      if (data.username !== username) {
+        status.textContent = data.username + ' typing...';
+        setTimeout(() => {
+          status.textContent = '';
+        }, 3000);
+      }
+    });
+
+    socket.on('newMessage', (data) => {
+      messageOut.textContent = data.messages;
+      messageOut.scrollTop = messageOut.scrollHeight;
+    });
+
+  </script>
+</body>
+
+</html>
