@@ -1,52 +1,73 @@
 'use strict';
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 8080;
 
 const fs = require('fs');
-const http = require('http');
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
 const socketIO = require('socket.io')(http);
 
-let server;
-let sockets;
+let users = [];
 
-server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  fs.readFile('index.html', (err, html) => {
-    res.write(html);
-    res.end();
+const idIndexOf = (id) => {
+  for (let i = 0; i < users.length; i++) {
+    if (users[i].id === id) {
+      return i;
+    }
+  }
+  return -1;
+};
+
+app.use(express.static(__dirname));
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/client/index.html');
+});
+
+socketIO.on('connection', (socket) => {
+  console.log(socket.id + ' connected');
+  users.push({ id: socket.id, username: null, admin: false });
+
+  const fileRead = (file) => {
+    fs.readFile(file, 'utf8', (err, file) => {
+      socketIO.emit('newMessage', { messages: file });
+    });
+  };
+
+  socket.on('usernameChange', (data) => {
+    let i = idIndexOf(socket.id);
+    users[i].username = data.username;
+    socketIO.emit('connectedUsers', { users: users });
   });
-}).listen(port);
 
-sockets = socketIO.listen(server).sockets;
-
-sockets.on('connection', (socket) => {
   fs.readFile('chat.txt', 'utf8', (err, file) => {
     socket.emit('newMessage', { messages: file });
   });
-
-  console.log('connected');
+  socketIO.emit('connectedUsers', { users: users });
 
   socket.on('typingStart', (data) => {
     socket.broadcast.emit('typingStart', { username: data.username })
   });
+
   socket.on('newMessage', (data) => {
-    fs.appendFile('chat.txt', data.username + ': ' + data.message + '\n', (err) => {
-      if (err)
-        throw err;
-    });
-    fs.readFile('chat.txt', 'utf8', (err, file) => {
-      sockets.emit('newMessage', { messages: file });
-    });
+    fs.appendFile('chat.txt', data.username + ': ' + data.message + '\n', err => { });
+    fileRead('chat.txt');
   });
+
   socket.on('clearChat', (data) => {
-    fs.writeFile('chat.txt', '', (err) => {
-      if (err)
-        throw err;
-    })
-    fs.readFile('chat.txt', 'utf8', (err, file) => {
-      sockets.emit('newMessage', { messages: file });
-    });
+    fs.writeFile('chat.txt', '', err => { });
+    fileRead('chat.txt');
   });
 
+  socket.on('drawLine', (data) => {
+    socket.broadcast.emit('drawLine', data);
+  });
 
+  socket.on('disconnect', () => {
+    console.log(socket.id + ' disconnected');
+    users.splice(idIndexOf(socket.id), 1);
+    socketIO.emit('connectedUsers', { users: users });
+  });
 });
+
+http.listen(port);

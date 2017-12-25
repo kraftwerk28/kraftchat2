@@ -1,0 +1,21 @@
+body {
+  text-align: center;
+}
+
+canvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: -1;
+}
+
+div {
+  font-size: 15px;
+  font-family: monospace;
+  text-align: center;
+  z-index: 0;
+}
+
+table {
+  margin: 0 auto;
+}
