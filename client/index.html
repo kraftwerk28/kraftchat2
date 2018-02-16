@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Kraft Chat</title>
-  <link rel="shortcut icon" href="./client/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="./client/index-style.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="index-style.css">
 </head>
 
 
@@ -18,31 +18,33 @@
     <table>
       <tr>
         <th>
-            <textarea class="inp" id="username" cols="100" rows="1" placeholder="your username:"></textarea>
-            <br>
-        
-            <textarea class="inp" id="messages" cols="100" rows="10" readonly></textarea>
-            <br>
-        
-            <textarea class="inp" id="enter-message" cols="100" rows="3" placeholder="enter message..."></textarea>
-            <br>
-            <button id="send">Send</button>
-            <button id="clear">Clear</button>
-            <div id="status">...</div>
+          <textarea class="inp" id="username" cols="100" rows="1" placeholder="your username:"></textarea>
+          <br>
+
+          <textarea class="inp" id="messages" cols="100" rows="10" readonly></textarea>
+          <br>
+
+          <textarea class="inp" id="enter-message" cols="100" rows="3" placeholder="enter message..."></textarea>
+          <br>
+          <button id="send">Send</button>
+          <button id="clear">Clear</button>
+          <div id="status">...</div>
         </th>
         <th style="vertical-align: top">
-            <div>Connected users:</div>
-            <textarea id="connectedUsers" cols="20" rows="10" width="100%" box-sizing="border-box" readonly></textarea>
+          <div>Connected users:</div>
+          <textarea id="connectedUsers" cols="20" rows="10" width="100%" box-sizing="border-box" readonly></textarea>
         </th>
       </tr>
     </table>
-    
-    
-    
+
+
+
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-  <script src="./client/client.js"></script>
+  <!-- <script src="/socket-io/socket-io.js"></script> -->
+  <script src="client.js"></script>
+  <script src="canvas.js"></script>
 </body>
 
 </html>
